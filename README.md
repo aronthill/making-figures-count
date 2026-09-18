@@ -44,3 +44,4 @@ Other scripts in `code/` generate the synthetic data (A), synchronise scripts wi
 Install [Quarto](https://quarto.org/) and the R package `knitr`, as well as the packages above. Open `code/B_Figure_Pipeline.qmd` in RStudio and click **Render**. Keep `pipeline.css` and `C_sync_scripts.R` beside it. Rendering updates the HTML, figures and generated B, D and F scripts; edit their code in the Quarto source.
 
 To use your own data, change the CSV import and column names in `aes()`. Check units, missing values, group sizes and axis ranges. The fixed labels and limits here belong to this teaching example.
+
