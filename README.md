@@ -9,10 +9,10 @@ vigilance dataset. All 80 observations are simulated.
 
 | File | What it is for |
 | --- | --- |
-| [Illustrated HTML guide](code/B_Figure_Pipeline.html) | Read the explanations and expand the R code beside each figure. |
+| [Illustrated HTML guide](https://aronthill.github.io/making-figures-count/code/B_Figure_Pipeline.html) | Read the explanations and expand the R code beside each figure. |
 | [R walkthrough](code/Plot_walkthrough.R) | Work through the setup and plots in one commented script. |
 | [Quarto source](code/B_Figure_Pipeline.qmd) | Edit or rebuild the illustrated guide. |
-| [Presentation slides](code/Making_Figures_Count_final_slides.pptx) | View the slides from the talk. |
+| [Presentation slides](slides/Making_Figures_Count_final_slides.pdf) | View the slides from the talk. |
 | [Dataset](data/caffeine_attention.csv) | The simulated scores used in every example. |
 
 ## Read the guide
