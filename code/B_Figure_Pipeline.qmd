@@ -1,0 +1,344 @@
+---
+title: "Making Figures Count"
+subtitle: "A guide to the figures and R code"
+author: "Aron Hill"
+date: "2026-09-21"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    code-fold: true
+    code-summary: "Show R code"
+    code-copy: true
+    code-overflow: wrap
+    embed-resources: true
+    theme: default
+    fig-cap-location: bottom
+    include-in-header:
+      text: |
+        <style>
+        /* Plain white page with system fonts; no downloaded font is needed. */
+        :root { --bs-body-bg: #fff; --bs-body-color: #222; --bs-body-font-family: Arial, Helvetica, sans-serif; }
+        html, body, main, .sidebar { background: #fff; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.6; color: #222; }
+        h1, h2, h3, h4, .quarto-title { font-family: Arial, Helvetica, sans-serif; color: #222; font-weight: 600; }
+        h1.title { font-size: 2rem; }
+        h2 { font-size: 1.5rem; margin-top: 2.2rem; }
+        h3 { font-size: 1.15rem; margin-top: 1.6rem; }
+        .quarto-title .subtitle, figcaption { color: #555; }
+        a { color: #333; text-decoration: underline; }
+        #TOC a, #TOC a.active { color: #444 !important; }
+        #TOC a.active { border-left-color: #777 !important; }
+        figure { margin: 1.2rem 0 1.6rem; }
+        figcaption { font-size: .88rem; line-height: 1.5; }
+        details.optional { border-top: 1px solid #ddd; margin: 1rem 0; padding: .65rem 0; }
+        details.optional > summary { font-weight: 600; cursor: pointer; color: #333; }
+        details.optional[open] > summary { margin-bottom: 1rem; }
+        details.code-fold { margin: .8rem 0; }
+        details.code-fold > summary { color: #444; font-size: .92rem; }
+        code, pre { font-family: Menlo, Consolas, monospace; }
+        code:not(.sourceCode) { color: #333; background: none; }
+        div.sourceCode, pre.sourceCode { background: #f5f6f7; border-radius: 4px; }
+        div.sourceCode { border: 1px solid #ddd; }
+        pre.sourceCode { font-size: .85rem; line-height: 1.5; }
+        #TOC { font-size: .88rem; }
+        </style>
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    dev: "ragg_png"
+    dpi: 160
+---
+
+```{r}
+#| label: read-walkthrough
+#| include: false
+# Read the numbered sections from the R script. Keep headings in the form
+# "# 1. Load packages" so the guide can find each section after edits.
+script_lines <- readLines("Plot_walkthrough.R", warn = FALSE)
+section_starts <- grep("^# [0-9]+\\. ", script_lines)
+section_numbers <- as.integer(sub("^# ([0-9]+)\\..*", "\\1",
+                                  script_lines[section_starts]))
+section_ends <- c(section_starts[-1] - 1L, length(script_lines))
+
+# Match the guide's code blocks to the section numbers in the current script.
+section_map <- c(packages = 1, data = 2, style = 3, first = 4, bar = 5,
+                 box = 7, histogram = 8, density = 9, violin = 10,
+                 compact = 11, jitter = 12, boxpoints = 13,
+                 raincloud = 14, refined = 15, export = 16)
+if (anyDuplicated(section_numbers) ||
+    !setequal(section_numbers, unname(section_map))) {
+  stop("The R section numbers have changed. Update section_map in this guide.")
+}
+for (chunk_name in names(section_map)) {
+  i <- match(section_map[[chunk_name]], section_numbers)
+  section_code <- script_lines[seq.int(section_starts[i], section_ends[i])]
+  # Remove the next section's separator and empty lines at the end.
+  while (length(section_code) > 0 &&
+         grepl("^([[:space:]]*|# [-=]+)$", tail(section_code, 1))) {
+    section_code <- head(section_code, -1)
+  }
+  knitr::knit_code$set(setNames(list(section_code), chunk_name))
+}
+```
+
+## Start here!
+
+This guide follows the figures presented in the Research Incubator talk. Data from the same 80 simulated
+participants is used throughout, improving the first bar chart and exploring what
+each alternative reveals, before saving the final figures for e.g., use in a manuscript. 
+
+**Download the materials:** The R script, dataset and presentation slides
+are available in the [GitHub repository](https://github.com/aronthill/making-figures-count).
+Click the green **Code** button, then **Download ZIP**.
+
+Extract the ZIP before opening the files. Keep the folder structure intact
+so the R script can find the data.
+
+
+**To make the figures:** open the accompanying **Plot_walkthrough.R** file in RStudio and follow the instructions in the script. Set your working directory to the folder containing the script by choosing **Session → Set Working Directory → To Source File Location**. Keep the supplied folder structure intact so the script can find the data.
+
+Some plots build on earlier plots, so work through the sections in order on your first run. Use **Ctrl+Enter** on Windows or **Cmd+Enter** on Mac to run selected lines. Alternatively, run the entire script with `source("Plot_walkthrough.R")`.
+
+To display a plot again, type its object name, such as `p_boxpoints`, into the Console and press Enter.
+
+
+## Data and setup
+
+This example uses a ficticious study comparing placebo with 200 mg caffeine on a sustained-attention
+task. Vigilance scores run from 0 to 100, with higher values indicating better
+performance. There are 40 participants per group. **All scores are simulated**; (not actual participant data!) 
+
+The first three sections load packages, read the CSV and define shared settings.
+In R, `<-` assigns a value to an object and `|>` passes a result to the next step.
+In ggplot2, `aes()` maps data columns to visual features, `geom_` functions draw
+layers, and `+` adds another layer or setting. `geom_col()` uses supplied bar
+heights; `geom_bar()` counts rows by default.
+
+### Load packages
+
+*R script: section 1.*
+
+The script checks for missing packages and installs only those. `ggplot2` draws the figures, `dplyr` calculates summaries, `ragg` saves PNGs.
+
+```{r}
+#| label: packages
+```
+
+### Read the data and summaries
+
+*R script: section 2.*
+
+`dat` holds the participant rows. `summ` is a separate table with one row per group. `sd` describes the spread of scores; `se` describes the estimated precision of the mean. `ci` is the **half-width** of a 95% t confidence interval, so its endpoints are `mean - ci` and `mean + ci`. These columns are calculated here before the plotting code uses them.
+
+```{r}
+#| label: data
+#| results: hide
+```
+
+### Set colours and labels
+
+*R script: section 3.*
+
+Named colours keep the groups consistent across figures. Labels take their sample sizes from `summ`. Adding `style` to a plot reuses the colours, labels and theme. `theme_paper` sets larger text and light gridlines for the final figures. Try changing one setting at a time.
+
+```{r}
+#| label: style
+```
+
+## The first draft
+
+*R script: section 4.*
+
+The bars show means with ±1 standard error, but the figure itself does not explain the error bars. Small labels and vague axis titles make it harder to read. Most importantly, two averages hide the participant scores and the shape of each distribution.
+
+**Look for:** what would you need to know before interpreting these bars?
+
+```{r}
+#| label: first
+#| fig-cap: "Group means and ±1 standard error. Synthetic vigilance scores, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Clearer labels and confidence intervals
+
+*R script: section 5.*
+
+This version adds readable labels, group colours and sample sizes. It also replaces SE bars with **95% confidence intervals**. 
+
+```{r}
+#| label: bar
+#| fig-cap: "Group means and 95% t confidence intervals. Synthetic data, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Boxplots
+
+*R script: section 7.*
+
+A boxplot shows the median and middle 50% of the scores. Whiskers extend to observed scores within 1.5 × IQR of the box hinges; observations beyond them appear separately. Such points are not automatically errors.
+
+The summary is useful, but a boxplot still hides detailed distribution shape. Quite different distributions can produce similar boxes. Try `width` or `alpha` to adjust the appearance.
+
+```{r}
+#| label: box
+#| fig-cap: "Medians, interquartile ranges and whiskers to observations within the 1.5 × IQR fences."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Histograms
+
+*R script: section 8.*
+
+Histograms can sometimes be usedul to get a feel for the distribution of the data. 
+
+Histograms can reveal spread, asymmetry, gaps and more than one concentration of observations.
+
+The caffeine sample appears to have two concentrations of scores. Try `binwidth = 2` and `8` before interpreting the apparent peaks: the chosen bins affect what you see.
+
+```{r}
+#| label: histogram
+#| fig-cap: "Participant counts in 4-point bins with a boundary at zero and shared axes. Synthetic data, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Density plots
+
+*R script: section 9.*
+
+A density curve gives a smooth estimate of distribution shape. Its height is **density**, not a participant count. Each group’s full estimated density has area one. The small marks underneath are a *rug*: one mark per observation.
+
+The caffeine curve has two broad peaks at this smoothing setting. Try `adjust = 0.75` and `1.5`: stronger smoothing can merge the peaks. Compare the curve with the histogram and raw observations. This sample alone does not establish two distinct population subgroups.
+
+```{r}
+#| label: density
+#| fig-cap: "Kernel density estimates with adjust = 1. Rug marks show individual scores. Synthetic data, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Violin plots with a boxplot
+
+*R script: section 10.*
+
+A violin is basically just a mirrored density estimate (imagine a density plot flipped on its side!). 
+Wider parts of the violin indicate greater estimated density at that score. 
+Violin plots can show data distribution features that are not observable with a boxplot alone, while the box retains a familiar summary of the median and IQR.
+
+`trim = TRUE` stops the violin at the observed range; `adjust` controls smoothing. These full violins use the default equal-area scaling, and both groups contain 40 observations.
+
+```{r}
+#| label: violin
+#| fig-cap: "Violin densities with embedded boxplots. Smoothing adjustment = 0.8. Synthetic data, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## A simpler violin plot
+
+*R script: section 11.*
+
+For a smaller figure, you could potentially replace the box with a median dot and two lines. The **white dot is the median**, the **thick line is the IQR**, and the **thin line is the observed minimum–maximum**. Neither line is a confidence interval. The thin line is different from a standard boxplot whisker.
+
+The smooth shape remains visible, but individual observations are hidden. Use points as well when the individual scores matter to your question.
+
+```{r}
+#| label: compact
+#| fig-cap: "White dot: median. Thick line: IQR. Thin line: observed range. Smoothing adjustment = 0.8. Synthetic data, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Individual scores
+
+*R script: section 12.*
+
+Each point represents one participant. Horizontal jitter separates overlapping points while `height = 0` keeps every score unchanged. A fixed `seed` makes the layout repeatable.
+
+Try changing the jitter width, point size or transparency. Too little jitter leaves overlap; too much can make group membership harder to follow.
+
+```{r}
+#| label: jitter
+#| fig-cap: "Individual scores with horizontal jitter only. Synthetic data, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Points with a boxplot
+
+*R script: section 13.*
+
+The points show every observation, while the box gives a concise summary. `outlier.shape = NA` suppresses duplicate outlier symbols from the boxplot because the point layer already includes those participants. **No observations are removed.**
+
+This is already a useful manuscript option. A more elaborate plot is probably only worthwhile only if it further helps readers to decipher the data. 
+
+```{r}
+#| label: boxpoints
+#| fig-cap: "Individual scores, medians and IQRs. All participants are shown; duplicate boxplot outlier symbols are hidden."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Raincloud plots
+
+*R script: section 14.*
+
+Raincloud plots combine elements of boxplots, violin plots, and individual data points. They are therefore useful for very transparently displaying your data. 
+
+The first part of this section calculates `cloud`. `density()` estimates a curve for each group and `geom_polygon()` draws one side of it. Each cloud is scaled to its **own maximum width**, so compare its shape rather than interpreting width as absolute density across groups. The box has an explicit group mapping because its x positions are numeric.
+
+```{r}
+#| label: raincloud
+#| fig-cap: "Individual scores, boxplots and half-violins. Each cloud is scaled to its own maximum width. Synthetic data, n = 40 per group."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Refining the raincloud
+
+*R script: section 15.*
+
+Keep the same data and density calculation, then increase label sizes, widen the boxes slightly, thicken their outlines and use larger filled points with white outlines. A little more horizontal jitter helps separate the points, while `height = 0` preserves their scores. Light gridlines help comparison without dominating the figure.
+
+A simple caption could read: *Vigilance scores in the placebo and caffeine (200 mg) groups (n = 40 per group; simulated data). Points show individual participants, boxes show medians and interquartile ranges, and half-violins show the estimated distributions.*
+
+```{r}
+#| label: refined
+#| fig-cap: "Refined raincloud with larger labels and points. The observations, boxplot summaries and density estimates are unchanged."
+#| fig-width: 6.30
+#| fig-height: 4.92
+```
+
+## Export and final size
+
+*R script: section 16.*
+
+Set the physical dimensions before judging readability. Use the dimensions required for your manuscript. Increasing DPI improves resolution but does not enlarge the text.
+
+Run the earlier sections first to create `p_polished` and `p_compact`. This
+section creates `saved_figures/` inside your working directory and saves four
+files: a PNG and PDF of the refined raincloud, and a PNG and PDF of the narrower
+violin. With the working directory set to the script's location, this is
+`code/saved_figures/`. An existing folder is kept; saving again replaces files
+with the same names.
+
+The first plots are displayed without being saved automatically. Section 4
+includes a commented-out `ggsave()` example: uncomment it to save the first bar
+chart. Reuse that example for another plot by changing the plot object and filename.
+
+Check labels, points and line widths after placing the exported figure in the
+manuscript. The smaller violin has its own text sizes and margins, rather than
+being a shrunken copy of the larger figure.
+
+```{r}
+#| label: export
+#| fig-show: hide
+```
+
