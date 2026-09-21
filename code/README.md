@@ -13,7 +13,7 @@ the `code/` and `data/` folders together so the script can find the dataset.
 - [Read the illustrated guide](B_Figure_Pipeline.html)
 - [R walkthrough](Plot_walkthrough.R)
 - [Quarto source](B_Figure_Pipeline.qmd)
-- [Presentation slides](Making_Figures_Count_final_slides.pptx)
+- [Presentation slides](../slides/Making_Figures_Count_final_slides.pdf)
 
 The [online guide](https://aronthill.github.io/making-figures-count/) can be
 read without R or Quarto. To recreate the figures, use the complete ZIP above
