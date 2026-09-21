@@ -29,8 +29,7 @@ R or Quarto to read it.
 2. Open `code/Plot_walkthrough.R` in RStudio.
 3. Choose **Session → Set Working Directory → To Source File Location**.
 4. Run sections **1–3** for packages, data and shared formatting, then work
-   through the remaining sections in order. Section 6 has been removed; the
-   original numbering is retained.
+   through the remaining sections in order. 
 
 Use **Ctrl+Enter** on Windows or **Cmd+Enter** on Mac to run selected lines.
 Some plots use objects created earlier. To run the whole script, use:
