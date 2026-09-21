@@ -1,47 +1,66 @@
 # Making Figures Count
 
-Aron Hill — School of Psychology research incubator talk.
+Aron Hill — Research Incubator talk.
 
-A practical guide to making figures in R and ggplot2, using a fictional caffeine and vigilance study. All 80 observations and the subgroup labels are synthetic teaching data.
+A guide to making figures in R and ggplot2, using one fictional caffeine and
+vigilance dataset. All 80 observations are simulated.
+
+## Included materials
+
+| File | What it is for |
+| --- | --- |
+| [Illustrated HTML guide](code/B_Figure_Pipeline.html) | Read the explanations and expand the R code beside each figure. |
+| [R walkthrough](code/Plot_walkthrough.R) | Work through the setup and plots in one commented script. |
+| [Quarto source](code/B_Figure_Pipeline.qmd) | Edit or rebuild the illustrated guide. |
+| [Presentation slides](code/Making_Figures_Count_final_slides.pptx) | View the slides from the talk. |
+| [Dataset](data/caffeine_attention.csv) | The simulated scores used in every example. |
 
 ## Read the guide
 
-Download this repository using **Code → Download ZIP**, then extract the ZIP. Open `code/B_Figure_Pipeline.html` in your browser. You do not need R or Quarto to read it. Expand **Show R code** to see how each figure was made.
+[Read online](https://aronthill.github.io/making-figures-count/), or open
+`code/B_Figure_Pipeline.html` in your browser after extracting the download.
+The HTML includes its images and styling and works offline. You do not need
+R or Quarto to read it.
 
-## Run the code
+## Make the figures
 
-1. Keep the folders together. In RStudio, open `code/F_starter_plot.R` and choose **Session → Set Working Directory → To Source File Location**.
-2. Install ggplot2 once by running `install.packages("ggplot2")` in the Console.
-3. Run the starter script. It reads the supplied CSV and saves a plot in `figures/`.
+1. Extract the ZIP and keep the folder structure intact. The `code/` and
+   `data/` folders should remain beside one another.
+2. Open `code/Plot_walkthrough.R` in RStudio.
+3. Choose **Session → Set Working Directory → To Source File Location**.
+4. Run sections **1–3** for packages, data and shared formatting, then work
+   through the remaining sections in order. Section 6 has been removed; the
+   original numbering is retained.
 
-For the full figure sequence, install these packages once:
+Use **Ctrl+Enter** on Windows or **Cmd+Enter** on Mac to run selected lines.
+Some plots use objects created earlier. To run the whole script, use:
 
 ```r
-install.packages(c("ggplot2", "dplyr", "readr", "patchwork", "ragg", "systemfonts"))
+source("Plot_walkthrough.R")
 ```
 
-Then open and run `code/B_build_figures.R`, using the same working-directory setting. It writes the figures to `figures/`. Use R 4.1 or later; figure fonts may vary between computers.
+The script requires R 4.1 or later. It uses `ggplot2`, `dplyr` and `ragg`, and
+installs missing packages automatically. Package installation needs an
+internet connection. Quarto is not needed to run the script.
 
-## Files
-
-| File or folder | Contents |
-| --- | --- |
-| `code/B_Figure_Pipeline.qmd` | Quarto source: explanations and plotting code |
-| `code/B_Figure_Pipeline.html` | Illustrated guide, ready to read offline |
-| `code/pipeline.css` | Formatting for the HTML guide |
-| `data/caffeine_attention.csv` | Synthetic data: ID, group, metaboliser label and vigilance score |
-| `code/F_starter_plot.R` | Short first example using only ggplot2 |
-| `code/B_build_figures.R` | All figures in the guide, without Quarto |
-| `code/D_final_raincloud.R` | Independent raincloud and manuscript exports |
-| `figures/` | Supplied figure images, including supplementary and slide versions |
-| `presentation/` | PowerPoint slides and presenter notes |
-| `assets/fonts/` | Optional slide fonts and their licences |
-
-Other scripts in `code/` generate the synthetic data (A), synchronise scripts with the Quarto source (C), export slide figures (E), try simple plotting changes (G), and compare two themes (H). You can ignore these when starting.
+Type a plot object's name, such as `p_boxpoints`, into the Console to show it
+again. Section 16 saves the refined raincloud and narrower violin as PNG and
+PDF files in `code/saved_figures/`. Section 4 includes a commented example
+for saving an earlier plot.
 
 ## Edit the guide
 
-Install [Quarto](https://quarto.org/) and the R package `knitr`, as well as the packages above. Open `code/B_Figure_Pipeline.qmd` in RStudio and click **Render**. Keep `pipeline.css` and `C_sync_scripts.R` beside it. Rendering updates the HTML, figures and generated B, D and F scripts; edit their code in the Quarto source.
+Install Quarto and the R packages `knitr` and `rmarkdown`:
 
-To use your own data, change the CSV import and column names in `aes()`. Check units, missing values, group sizes and axis ranges. The fixed labels and limits here belong to this teaching example.
+```r
+install.packages(c("knitr", "rmarkdown"))
+```
 
+Open `code/B_Figure_Pipeline.qmd` in RStudio and click **Render**. The guide
+reads its plotting code from `Plot_walkthrough.R`, so keep those files together.
+Edit explanations in the Quarto file and plotting code in the R script.
+Keep the numbered section headings. If you add or remove a section, also
+update the section mapping and corresponding content in the Quarto file.
+
+The R walkthrough contains the complete current code. The slides use shorter
+extracts for teaching; follow the walkthrough when recreating the figures.
