@@ -1,6 +1,6 @@
 # Making Figures Count
 
-Aron Hill — Research Incubator talk.
+Aron Hill — SoP Research Incubator talk.
 
 A guide to making figures in R and ggplot2, using one fictional caffeine and
 vigilance dataset. All 80 observations are simulated.
