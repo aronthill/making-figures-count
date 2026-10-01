@@ -61,5 +61,5 @@ Edit explanations in the Quarto file and plotting code in the R script.
 Keep the numbered section headings. If you add or remove a section, also
 update the section mapping and corresponding content in the Quarto file.
 
-The R walkthrough contains the complete current code. The slides use shorter
+The R walkthrough contains the complete current code. Slides use shorter
 extracts for teaching; follow the walkthrough when recreating the figures.
